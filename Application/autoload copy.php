@@ -1,9 +1,10 @@
 <?php
 
-function autoloader($className){
+function autoloaderReports($className)
+{
     $classNameParts = explode('\\', $className);
     $className = end($classNameParts);
     include 'Reports/' . $className . '.php';
 }
 
-spl_autoload_register('autoloader');
+spl_autoload_register('autoloaderReports');

@@ -1,6 +1,4 @@
 <?php
-include('Application/autoload.php');
+include('autoload.php');
 
-$reportController = new Reports\ReportController();
-
-
+$reportController = new Reports\ReportsService();

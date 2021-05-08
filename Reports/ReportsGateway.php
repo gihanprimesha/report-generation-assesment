@@ -2,8 +2,10 @@
 
 namespace Reports;
 
-class ReportsGateway {
-    function __construct(){
+class ReportsGateway
+{
+    function __construct()
+    {
         echo 'ReportsGateway';
     }
 }

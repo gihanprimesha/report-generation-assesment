@@ -2,8 +2,14 @@
 
 namespace Reports;
 
-class ReportsService {
-    function __construct(){
-        echo 'ReportsService';
+use Application\Connection;
+
+class ReportsService
+{
+    function __construct()
+    {
+        $conection = new Connection();
+        $conection->getConnction();
+        echo $conection->getConnction();
     }
 }
