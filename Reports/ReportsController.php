@@ -9,7 +9,9 @@
 
 namespace Reports;
 
-class ReportController
+use Application\FileGenerator;
+
+class ReportsController
 {
     private $reportService;
 
@@ -21,7 +23,11 @@ class ReportController
     public function reportOneAction()
     {
         try {
-            $this->reportService->generateReportOne();
+            $data = $this->reportService->generateReportOne();
+
+            $fileGenerator = new FileGenerator(["Brand Name", "Total Turnover"]);
+
+            $fileGenerator->generateCsvFile($data);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -30,7 +36,11 @@ class ReportController
     public function reportTwoAction()
     {
         try {
-            $this->reportService->generateReportTwo();
+            $data = $this->reportService->generateReportTwo();
+
+            $fileGenerator = new FileGenerator(["Date", "Total Turnover"]);
+
+            $fileGenerator->generateCsvFile($data);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

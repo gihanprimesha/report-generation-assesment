@@ -2,7 +2,7 @@
 
 namespace Application;
 
-use Reports\ReportController;
+use Reports\ReportsController;
 
 class ActionFactory
 {
@@ -23,11 +23,17 @@ class ActionFactory
         if (isset($this->getRouteConfig()['routes'][$uriArray[1]])) {
 
             if (self::REPORT_CONTOLLER === $uriArray[1]) {
-                $reportController = new ReportController();
+                $reportsController = new ReportsController();
                 if (isset($this->routeConfig['routes'][$uriArray[1]][$uriArray[2]])) {
-                    $reportController->{$this->routeConfig['routes'][$uriArray[1]][$uriArray[2]]['action']}();
+                    $reportsController->{$this->routeConfig['routes'][$uriArray[1]][$uriArray[2]]['action']}();
+                } else {
+                    throw new \Exception('Url not found');
                 }
+            } else {
+                throw new \Exception('Url not found');
             }
+        } else {
+            throw new \Exception('Url not found');
         }
     }
 

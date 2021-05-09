@@ -20,11 +20,23 @@ class ReportsService
 
     public function generateReportOne()
     {
-        $this->reportGateway->generateReportOne();
+        $data = $this->reportGateway->generateReportOne();
+
+        if (empty($data)) {
+            throw new \Exception('Report data not found');
+        }
+
+        return $data;
     }
 
     public function generateReportTwo()
     {
-        $this->reportGateway->generateReportTwo();
+        $data = $this->reportGateway->generateReportTwo();
+
+        if (empty($data)) {
+            throw new \Exception('Report data not found');
+        }
+
+        return $data;
     }
 }

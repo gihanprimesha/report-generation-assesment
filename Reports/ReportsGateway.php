@@ -45,9 +45,7 @@ class ReportsGateway
             throw new \Exception('Report data not found');
         }
 
-        $fileGenerator = new FileGenerator(["Brand Name", "Total Turnover"]);
-
-        $fileGenerator->generateCsvFile($data);
+        return $data;
     }
 
     /** Generate report 7 days turnover per day.*/
@@ -63,13 +61,11 @@ class ReportsGateway
             throw new \Exception('Report data not found');
         }
 
-        $fileGenerator = new FileGenerator(["Date", "Total Turnover"]);
-
-        $fileGenerator->generateCsvFile($data);
+        return $data;
     }
 
     /** get date from the data base */
-    private function getReportsDataFromDb($query = null)
+    public function getReportsDataFromDb($query = null)
     {
         if (!isset($query)) {
             throw new \Exception('Invalid data sent to ' . __METHOD__);
