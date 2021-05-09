@@ -1,4 +1,9 @@
 <?php
 include('autoload.php');
 
-$reportController = new Reports\ReportsService();
+$actionFactory = new Application\ActionFactory();
+try {
+    $actionFactory->actionCreator();
+} catch (\Exception $e) {
+    echo $e->getMessage();
+}
