@@ -23,7 +23,12 @@ class ActionFactory
         if (isset($this->getRouteConfig()['routes'][$uriArray[1]])) {
 
             if (self::REPORT_CONTOLLER === $uriArray[1]) {
+                if (!isset($uriArray[2])) {
+                    throw new \Exception('Url not found');
+                }
+
                 $reportsController = new ReportsController();
+
                 if (isset($this->routeConfig['routes'][$uriArray[1]][$uriArray[2]])) {
                     $reportsController->{$this->routeConfig['routes'][$uriArray[1]][$uriArray[2]]['action']}();
                 } else {
