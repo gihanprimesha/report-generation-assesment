@@ -20,6 +20,9 @@ class ReportsController
         $this->reportService = new ReportsService();
     }
 
+    /**
+     * 
+     */
     public function reportOneAction()
     {
         try {
@@ -33,6 +36,9 @@ class ReportsController
         }
     }
 
+    /**
+     * 
+     */
     public function reportTwoAction()
     {
         try {
