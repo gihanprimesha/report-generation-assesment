@@ -9,10 +9,12 @@
 
 namespace Reports\TurnOverReports;
 
+use Exception;
 use Reports\AbstractReport;
 use Application\Helpers\Mapper;
 use Application\Helpers\Validation;
-use Exception;
+use Reports\TurnOverReports\Models\TurnoverPerBrand;
+use Reports\TurnOverReports\Models\TurnoverPerDay;
 
 class TurnOverReportsGateway extends AbstractReport
 {
@@ -28,13 +30,13 @@ class TurnOverReportsGateway extends AbstractReport
 
     private $mapper = [
         Mapper::DATABASE_MAPPER => [
-            parent::SEVEN_DAY_TURNOVER_PER_BRAND => [
+            parent::TURNOVER_PER_BRAND => [
                 'name' => 'brandName',
-                'sum'  => 'totalTutnOver'
+                'sum'  => 'totalTurnOver'
             ],
-            parent::SEVEN_DAY_TURNOVER_PER_DAY => [
-                'date' => 'date',
-                'sum'  => 'totalTutnOver'
+            parent::TURNOVER_PER_DAY => [
+                'date' => 'day',
+                'sum'  => 'totalTurnOver'
             ]
 
         ],
@@ -69,7 +71,7 @@ class TurnOverReportsGateway extends AbstractReport
     public function getReportData(array $request)
     {
 
-        $data = [];
+        $objectArray = [];
 
         if (empty($request)) {
             throw new Exception('Invalid data sent to ' . __METHOD__);
@@ -81,7 +83,7 @@ class TurnOverReportsGateway extends AbstractReport
             throw new Exception('Validation Failed! ' . $validatedResults[0]);
         }
 
-        if ($request['reportType'] === parent::SEVEN_DAY_TURNOVER_PER_BRAND) {
+        if ($request['reportType'] === parent::TURNOVER_PER_BRAND) {
 
             $sql = "SELECT " . $this->table_bands . ".name, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100)) 
                 as sum FROM " . $this->table_bands . "
@@ -96,11 +98,13 @@ class TurnOverReportsGateway extends AbstractReport
 
             foreach ($data as $reportData) {
                 $structReportData = $this->getObjectStructuredReportData(
-                    $this->mapper[Mapper::DATABASE_MAPPER][parent::SEVEN_DAY_TURNOVER_PER_BRAND],
+                    $this->mapper[Mapper::DATABASE_MAPPER][parent::TURNOVER_PER_BRAND],
                     $reportData
                 );
+
+                $objectArray[] = $this->hydrateTurnoverPerBrandData($structReportData);
             }
-        } elseif ($request['reportType'] === parent::SEVEN_DAY_TURNOVER_PER_DAY) {
+        } elseif ($request['reportType'] === parent::TURNOVER_PER_DAY) {
 
             $sql = "SELECT " . $this->table_gmv . ".date, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
                 . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
@@ -114,15 +118,17 @@ class TurnOverReportsGateway extends AbstractReport
 
             foreach ($data as $reportData) {
                 $structReportData = $this->getObjectStructuredReportData(
-                    $this->mapper[Mapper::DATABASE_MAPPER][parent::SEVEN_DAY_TURNOVER_PER_BRAND],
+                    $this->mapper[Mapper::DATABASE_MAPPER][parent::TURNOVER_PER_DAY],
                     $reportData
                 );
+
+                $objectArray[] = $this->hydrateTurnoverPerDayData($structReportData);
             }
         } else {
             throw new \Exception('Report type not found');
         }
 
-        return $data;
+        return $objectArray;
     }
 
     private function getValidationObj()
@@ -137,5 +143,47 @@ class TurnOverReportsGateway extends AbstractReport
     private function setValidationObj()
     {
         $this->validationObj = new Validation();
+    }
+
+    /**
+     * Hydrate TurnoverPerBrandData
+     * @return  $turnoverPerBrandObj
+     */
+    private function hydrateTurnoverPerBrandData(array $perBrandData, TurnoverPerBrand $turnoverPerBrandObj = null)
+    {
+        if ($turnoverPerBrandObj === null) {
+            $turnoverPerBrandObj = new TurnoverPerBrand();
+        }
+
+        if (isset($perBrandData['brandName'])) {
+            $turnoverPerBrandObj->setBrandName($perBrandData['brandName']);
+        }
+
+        if (isset($perBrandData['totalTurnOver'])) {
+            $turnoverPerBrandObj->setTotalTurnOver($perBrandData['totalTurnOver']);
+        }
+
+        return $turnoverPerBrandObj;
+    }
+
+    /**
+     * Hydrate TurnoverPerDayData
+     * @return  $turnoverPerDayObj
+     */
+    private function hydrateTurnoverPerDayData(array $perDayData, TurnoverPerDay $turnoverPerDayObj = null)
+    {
+        if ($turnoverPerDayObj === null) {
+            $turnoverPerDayObj = new TurnoverPerDay();
+        }
+
+        if (isset($perDayData['day'])) {
+            $turnoverPerDayObj->setDay($perDayData['day']);
+        }
+
+        if (isset($perDayData['totalTurnOver'])) {
+            $turnoverPerDayObj->setTotalTurnOver($perDayData['totalTurnOver']);
+        }
+
+        return $turnoverPerDayObj;
     }
 }

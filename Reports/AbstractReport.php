@@ -15,8 +15,8 @@ abstract class AbstractReport
 {
 
 
-    const SEVEN_DAY_TURNOVER_PER_BRAND = 'SEVEN_DAY_TURNOVER_PER_BRAND';
-    const SEVEN_DAY_TURNOVER_PER_DAY = 'SEVEN_DAY_TURNOVER_PER_DAY';
+    const TURNOVER_PER_BRAND = 'TURNOVER_PER_BRAND';
+    const TURNOVER_PER_DAY = 'TURNOVER_PER_DAY';
 
     private $dbConnection;
 

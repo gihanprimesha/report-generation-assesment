@@ -34,7 +34,7 @@ class FileGenerator
 
         foreach ($contentData as $data) {
 
-            fputcsv($output, $data);
+            fputcsv($output, $data->toArray());
         }
     }
 }

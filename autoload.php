@@ -13,6 +13,10 @@ function autoloader($className)
         }
     }
 
+    if (!file_exists($folderPath . '.php')) {
+        return false;
+    }
+
     include $folderPath . '.php';
 }
 

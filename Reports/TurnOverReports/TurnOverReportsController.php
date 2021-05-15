@@ -34,11 +34,11 @@ class TurnOverReportsController
             $request['pageStart'] = '1';
             $request['pageEnd'] = '10';
 
-            $data = $this->reportService->sevenDayTurnOverPerBrandReport($request);
+            $dataObj = $this->reportService->sevenDayTurnOverPerBrandReport($request);
 
             $fileGenerator = new FileGenerator(["Brand Name", "Total Turnover"]);
 
-            $fileGenerator->generateCsvFile($data);
+            $fileGenerator->generateCsvFile($dataObj);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -57,11 +57,11 @@ class TurnOverReportsController
             $request['pageStart'] = '1';
             $request['pageEnd'] = '10';
 
-            $data = $this->reportService->sevenDayTurnOverPerDayReport($request);
+            $dataObj  = $this->reportService->sevenDayTurnOverPerDayReport($request);
 
             $fileGenerator = new FileGenerator(["Date", "Total Turnover"]);
 
-            $fileGenerator->generateCsvFile($data);
+            $fileGenerator->generateCsvFile($dataObj);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

@@ -22,7 +22,7 @@ class TurnOverReportsService
 
     public function sevenDayTurnOverPerBrandReport(array $request)
     {
-        $request['reportType'] = AbstractReport::SEVEN_DAY_TURNOVER_PER_BRAND;
+        $request['reportType'] = AbstractReport::TURNOVER_PER_BRAND;
 
         $data = $this->reportGateway->getReportData($request);
 
@@ -35,7 +35,7 @@ class TurnOverReportsService
 
     public function sevenDayTurnOverPerDayReport(array $request)
     {
-        $request['reportType'] = AbstractReport::SEVEN_DAY_TURNOVER_PER_DAY;
+        $request['reportType'] = AbstractReport::TURNOVER_PER_DAY;
 
         $data = $this->reportGateway->getReportData($request);
 
