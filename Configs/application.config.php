@@ -4,11 +4,11 @@ return [
         'reports' => [
 
             'report-one' => [
-                'action' => 'reportOneAction'
+                'action' => 'sevenDayTurnOverPerBrandAction'
             ],
 
             'report-two' => [
-                'action' => 'reportTwoAction'
+                'action' => 'sevenDayTurnOverPerDayAction'
             ]
         ]
     ]

@@ -2,7 +2,7 @@
 
 namespace Application;
 
-use Reports\ReportsController;
+use Reports\TurnOverReports\TurnOverReportsController;
 
 class ActionFactory
 {
@@ -27,7 +27,7 @@ class ActionFactory
                     throw new \Exception('Url not found');
                 }
 
-                $reportsController = new ReportsController();
+                $reportsController = new TurnOverReportsController();
 
                 if (isset($this->routeConfig['routes'][$uriArray[1]][$uriArray[2]])) {
                     $reportsController->{$this->routeConfig['routes'][$uriArray[1]][$uriArray[2]]['action']}();

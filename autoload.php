@@ -2,11 +2,18 @@
 
 function autoloader($className)
 {
+    $folderPath = '';
     $classNameParts = explode('\\', $className);
 
-    $className = end($classNameParts);
-    $folder = $classNameParts[0];
-    include $folder . '/' . $className . '.php';
+    foreach ($classNameParts as $key => $value) {
+        if ($key === 0) {
+            $folderPath = $value;
+        } else {
+            $folderPath = $folderPath . '/' . $value;
+        }
+    }
+
+    include $folderPath . '.php';
 }
 
 spl_autoload_register('autoloader');
