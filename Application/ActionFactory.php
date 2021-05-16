@@ -2,8 +2,6 @@
 
 namespace Application;
 
-use Reports\TurnOverReports\TurnOverReportsController;
-
 class ActionFactory
 {
     private $routeParams;
@@ -18,25 +16,21 @@ class ActionFactory
 
     public function actionCreator()
     {
-        $uriArray = explode("/", $this->routeParams);
+        header("Content-Type: application/json");
 
-        if (isset($this->getRouteConfig()['routes'][$uriArray[1]])) {
 
-            if (self::REPORT_CONTOLLER === $uriArray[1]) {
-                if (!isset($uriArray[2])) {
-                    throw new \Exception('Url not found');
-                }
+        if (isset($this->getRouteConfig()['routes'][$this->routeParams])) {
 
-                $reportsController = new TurnOverReportsController();
-
-                if (isset($this->routeConfig['routes'][$uriArray[1]][$uriArray[2]])) {
-                    $reportsController->{$this->routeConfig['routes'][$uriArray[1]][$uriArray[2]]['action']}();
-                } else {
-                    throw new \Exception('Url not found');
-                }
-            } else {
-                throw new \Exception('Url not found');
+            if ($_SERVER['REQUEST_METHOD'] !== $this->getRouteConfig()['routes'][$this->routeParams]['request-method']) {
+                throw new \Exception($_SERVER['REQUEST_METHOD'] . ' not allowed');
             }
+
+            $request = json_decode(file_get_contents('php://input'), true);
+
+            $class =  $this->getRouteConfig()['routes'][$this->routeParams]['controller'];
+            $contollerObj = new  $class();
+            $returnData = $contollerObj->{$this->getRouteConfig()['routes'][$this->routeParams]['action']}($request);
+            echo json_encode($returnData);
         } else {
             throw new \Exception('Url not found');
         }

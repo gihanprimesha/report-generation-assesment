@@ -17,6 +17,7 @@ abstract class AbstractReport
 
     const TURNOVER_PER_BRAND = 'TURNOVER_PER_BRAND';
     const TURNOVER_PER_DAY = 'TURNOVER_PER_DAY';
+    const TURNOVER_PER_DAY_PER_BRAND = 'TURNOVER_PER_DAY_PER_BRAND';
 
     private $dbConnection;
 
@@ -25,6 +26,8 @@ abstract class AbstractReport
     /** get date from the data base */
     public function getReportsDataFromDb($query = null)
     {
+        $data = [];
+
         if (!isset($query)) {
             throw new \Exception('Invalid data sent to ' . __METHOD__);
         }
@@ -64,7 +67,7 @@ abstract class AbstractReport
 
     private function setDbConnaction()
     {
-        $connection = new Connection();
+        $connection = Connection::getInstance();
         $this->dbConnection = $connection->getConnction();
     }
 }

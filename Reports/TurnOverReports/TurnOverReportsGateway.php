@@ -13,15 +13,18 @@ use Exception;
 use Reports\AbstractReport;
 use Application\Helpers\Mapper;
 use Application\Helpers\Validation;
+use Application\Exceptions\ValidationException;
+use Application\Exceptions\NoDataException;
 use Reports\TurnOverReports\Models\TurnoverPerBrand;
 use Reports\TurnOverReports\Models\TurnoverPerDay;
+use Reports\TurnOverReports\Models\TurnoverPerDayPerBrand;
 
 class TurnOverReportsGateway extends AbstractReport
 {
     /** Hard corded bcaouse of the assesment */
-    const START_DATE = '2018-05-01';
-    const END_DATE = '2018-05-07';
+
     const VAT_PRESENTAGE = '21';
+    const ROWS_PER_PAGE = 2;
 
     private $table_bands = 'brands';
     private $table_gmv = 'gmv';
@@ -37,16 +40,13 @@ class TurnOverReportsGateway extends AbstractReport
             parent::TURNOVER_PER_DAY => [
                 'date' => 'day',
                 'sum'  => 'totalTurnOver'
+            ],
+            parent::TURNOVER_PER_DAY_PER_BRAND => [
+                'name' => 'brandName',
+                'date' => 'day',
+                'sum'  => 'totalTurnOver'
             ]
 
-        ],
-
-        Mapper::REQUEST_MAPPER => [
-            'startDate' => 'startDate',
-            'endDate' => 'endDate',
-            'pageStart' => 'pageStart',
-            'pageEnd' => 'pageEnd',
-            'reportType' => 'reportType',
         ],
 
         Mapper::VALIDATION_MAP => [
@@ -56,14 +56,14 @@ class TurnOverReportsGateway extends AbstractReport
             'endDate' => [
                 Validation::VALID_TYPE_REQUIRED
             ],
-            'pageStart' => [
-                Validation::VALID_TYPE_REQUIRED
-            ],
-            'pageEnd' => [
-                Validation::VALID_TYPE_REQUIRED
-            ],
+
             'reportType' => [
                 Validation::VALID_TYPE_REQUIRED
+            ],
+
+            'pageNumber' => [
+                Validation::VALID_TYPE_REQUIRED,
+                Validation::VALID_TYPE_NUMERIC,
             ],
         ]
     ];
@@ -80,20 +80,23 @@ class TurnOverReportsGateway extends AbstractReport
         $validatedResults = $this->getValidationObj()->validateRequest($this->mapper, $request);
 
         if (!empty($validatedResults)) {
-            throw new Exception('Validation Failed! ' . $validatedResults[0]);
+            throw new ValidationException('Validation Failed! ' . $validatedResults[0]);
         }
+
+        $pageStart = ((int) $request['pageNumber'] - 1) * self::ROWS_PER_PAGE;
 
         if ($request['reportType'] === parent::TURNOVER_PER_BRAND) {
 
-            $sql = "SELECT " . $this->table_bands . ".name, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100)) 
+            $sql = "SELECT " . $this->table_bands . ".name, SUM(" . $this->table_gmv
+                . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100)) 
                 as sum FROM " . $this->table_bands . "
                 LEFT JOIN " . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
-                BETWEEN '" . self::START_DATE . "' AND '" . self::END_DATE . "' GROUP BY " . $this->table_gmv . ".brand_id";
+                BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate']  . "' GROUP BY " . $this->table_gmv . ".brand_id LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
 
             $data = $this->getReportsDataFromDb($sql);
 
             if (empty($data)) {
-                throw new Exception('No report data found');
+                throw new NoDataException('No report data found');
             }
 
             foreach ($data as $reportData) {
@@ -106,14 +109,15 @@ class TurnOverReportsGateway extends AbstractReport
             }
         } elseif ($request['reportType'] === parent::TURNOVER_PER_DAY) {
 
-            $sql = "SELECT " . $this->table_gmv . ".date, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
+            $sql = "SELECT " . $this->table_gmv . ".date, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * "
+                . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
                 . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
-            BETWEEN '" . self::START_DATE . "' AND '" . self::END_DATE . "' GROUP BY " . $this->table_gmv . ".date";
+            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
 
             $data = $this->getReportsDataFromDb($sql);
 
             if (empty($data)) {
-                throw new Exception('No report data found');
+                throw new NoDataException('No report data found');
             }
 
             foreach ($data as $reportData) {
@@ -123,6 +127,29 @@ class TurnOverReportsGateway extends AbstractReport
                 );
 
                 $objectArray[] = $this->hydrateTurnoverPerDayData($structReportData);
+            }
+        } elseif ($request['reportType'] === parent::TURNOVER_PER_DAY_PER_BRAND) {
+
+            $sql = "SELECT " . $this->table_gmv . ".date," . $this->table_bands . ".name,  SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * "
+                . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
+                . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
+            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date ," . $this->table_gmv . ".brand_id LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
+
+            $data = $this->getReportsDataFromDb($sql);
+
+
+
+            if (empty($data)) {
+                throw new NoDataException('No report data found');
+            }
+
+            foreach ($data as $reportData) {
+                $structReportData = $this->getObjectStructuredReportData(
+                    $this->mapper[Mapper::DATABASE_MAPPER][parent::TURNOVER_PER_DAY_PER_BRAND],
+                    $reportData
+                );
+
+                $objectArray[] = $this->hydrateTurnoverPerDayPerBrandData($structReportData);
             }
         } else {
             throw new \Exception('Report type not found');
@@ -185,5 +212,30 @@ class TurnOverReportsGateway extends AbstractReport
         }
 
         return $turnoverPerDayObj;
+    }
+
+    /**
+     * Hydrate TurnoverPerDayPerBrandData
+     * @return  $turnoverPerDayPerBrandObj
+     */
+    private function hydrateTurnoverPerDayPerBrandData(array $perDayPerBrandData, TurnoverPerDayPerBrand $turnoverPerDayPerBrandObj = null)
+    {
+        if ($turnoverPerDayPerBrandObj === null) {
+            $turnoverPerDayPerBrandObj = new TurnoverPerDayPerBrand();
+        }
+
+        if (isset($perDayPerBrandData['day'])) {
+            $turnoverPerDayPerBrandObj->setDay($perDayPerBrandData['day']);
+        }
+
+        if (isset($perDayPerBrandData['totalTurnOver'])) {
+            $turnoverPerDayPerBrandObj->setTotalTurnOver($perDayPerBrandData['totalTurnOver']);
+        }
+
+        if (isset($perDayPerBrandData['brandName'])) {
+            $turnoverPerDayPerBrandObj->setBrandName($perDayPerBrandData['brandName']);
+        }
+
+        return $turnoverPerDayPerBrandObj;
     }
 }

@@ -2,13 +2,16 @@
 
 namespace Application;
 
+use Application\Connection as ApplicationConnection;
+
 class Connection
 {
     private $connection;
     private $serverName, $username, $password;
     private $config;
+    public static $instance;
 
-    public function __construct()
+    private function __construct()
     {
         if (!(include 'Configs/local.php')) {
             throw new \Exception('Database configurations not found');
@@ -42,13 +45,12 @@ class Connection
         return $this->connection;
     }
 
-    public function __sleep()
+    public static function getInstance()
     {
-        return array('dsn', 'username', 'password');
-    }
+        if (!isset(Connection::$instance)) {
+            Connection::$instance = new Connection();
+        }
 
-    public function __wakeup()
-    {
-        $this->connect();
+        return Connection::$instance;
     }
 }

@@ -9,12 +9,16 @@
 
 namespace Application;
 
+use PHPUnit\TextUI\XmlConfiguration\File;
+
 class FileGenerator
 {
 
     private $fileDataHeaders;
+    const REPORT_FOLDER = 'files';
+    public static $instance;
 
-    public function __construct($data)
+    private function __construct($data)
     {
         $this->fileDataHeaders = $data;
     }
@@ -22,19 +26,65 @@ class FileGenerator
     /** 
      * Download the csv file
      *  If it is large data use proper file genrator plugin
+     * @params reportData
+     * @return array
      */
     public function generateCsvFile($contentData = null)
     {
+        try {
+            $time = date('H:i:s d-M-Y');
 
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=' . date("Y G:i") . '.csv');
+            $fileName = __DIR__ . "/../" . self::REPORT_FOLDER . "/report-{$time}.csv";
 
-        $output = fopen('php://output', 'w');
-        fputcsv($output, $this->fileDataHeaders);
+            if (!file_exists(__DIR__ . '/../' . self::REPORT_FOLDER)) {
+                mkdir(__DIR__ . '/../' . self::REPORT_FOLDER, 0777, true);
+            }
 
-        foreach ($contentData as $data) {
+            $file = fopen($fileName, 'w');
+            fputcsv($file, $this->fileDataHeaders);
 
-            fputcsv($output, $data->toArray());
+            foreach ($contentData as $data) {
+
+                fputcsv($file, $data->toArray());
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
+
+
+        return [
+            'fileName' => "report-{$time}.csv",
+            'fileLocation' => $this->getFileLocation("report-{$time}.csv"),
+        ];
+    }
+
+    /**
+     * Get file created location
+     * @params null
+     * @return locationUrl
+     */
+    private function getFileLocation($fileName)
+    {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $domainName = $_SERVER['HTTP_HOST'] . '/';
+
+        $fileLocation = $protocol . $domainName . self::REPORT_FOLDER . '/' . $fileName;
+
+        return $fileLocation;
+    }
+
+    /**
+     * Get file generator instance
+     * @params report data
+     * @return FileGenerator
+     */
+    public static function getInstance($data)
+    {
+
+        if (!isset(FileGenerator::$instance)) {
+            FileGenerator::$instance = new FileGenerator($data);
+        }
+
+        return FileGenerator::$instance;
     }
 }

@@ -7,6 +7,7 @@ use \Application\Helpers\Mapper;
 class Validation
 {
     const VALID_TYPE_REQUIRED = 'REQUIRED';
+    const VALID_TYPE_NUMERIC = 'NUMERIC';
 
     public function validateRequest($map, $dataSet)
     {
@@ -30,6 +31,16 @@ class Validation
                     if (!isset($dataSet[$property]) || is_null($dataSet[$property]) || $dataSet[$property] === '') {
                         $mesages[] = 'Required property ' . $property;
                         break;
+                    }
+                }
+
+                if ($propValue === self::VALID_TYPE_NUMERIC) {
+
+                    if (isset($dataSet[$property]) || !is_null($dataSet[$property]) || $dataSet[$property] !== '') {
+                        if (!is_numeric($dataSet[$property])) {
+                            $mesages[] = $property. 'Should be number';
+                            break;
+                        }
                     }
                 }
             }

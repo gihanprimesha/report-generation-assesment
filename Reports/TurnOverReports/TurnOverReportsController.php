@@ -9,7 +9,11 @@
 
 namespace Reports\TurnOverReports;
 
+use Application\Exceptions\NoDataException;
+use Application\Exceptions\ValidationException;
 use Application\FileGenerator;
+use Application\Helpers\Logger;
+use Application\Helpers\Error;
 
 class TurnOverReportsController
 {
@@ -21,49 +25,165 @@ class TurnOverReportsController
     }
 
     /**
-     * 
+     * Generate turn over per brand report
+     * @params json object
+     * @return report data array
      */
-    public function sevenDayTurnOverPerBrandAction()
+    public function turnOverPerBrandAction($request)
     {
-        $pageStart = $pageEnd = null;
+        $data = $status = $message = null;
+        $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
+
+        if (empty($request)) {
+            throw new \Exception("Invalid request data");
+        }
 
         try {
 
-            $request['startDate'] = '2018-05-01';
-            $request['endDate'] = '2018-05-07';
-            $request['pageStart'] = '1';
-            $request['pageEnd'] = '10';
+            $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 
-            $dataObj = $this->reportService->sevenDayTurnOverPerBrandReport($request);
+            $dataObj = $this->reportService->turnOverPerBrandReport($request);
 
-            $fileGenerator = new FileGenerator(["Brand Name", "Total Turnover"]);
+            $this->getLoggertInstance()::debug("Leaving Method `" . __METHOD__ . "`");
 
-            $fileGenerator->generateCsvFile($dataObj);
+            $fileGenerator = FileGenerator::getInstance(["Brand Name", "Total Turnover"]);
+
+            $status = 'success';
+            $data = $fileGenerator->generateCsvFile($dataObj);
+        } catch (ValidationException $e) {
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $status = 'error';
+            $message = [
+                'type' => Error::VALIDATION_ERROR,
+                'description' => $e->getMessage()
+            ];
+        } catch (NoDataException $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::NO_DATA_FOUND_ERROR,
+                'description' => $e->getMessage()
+            ];
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::SYSTEM_ERROR,
+                'description' => $e->getMessage()
+            ];
         }
+
+        return [
+            'status' => $status,
+            'data' => $data,
+            'message' => $message,
+        ];
     }
 
     /**
-     * 
+     * Generate turn over per day report
+     * @params json object
+     * @return report data array
      */
-    public function sevenDayTurnOverPerDayAction()
+    public function turnOverPerDayAction($request)
     {
-        $pageStart = $pageEnd = null;
+        $data = $status = $message = null;
+        $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
         try {
 
-            $request['startDate'] = '2018-05-01';
-            $request['endDate'] = '2018-05-07';
-            $request['pageStart'] = '1';
-            $request['pageEnd'] = '10';
+            $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 
-            $dataObj  = $this->reportService->sevenDayTurnOverPerDayReport($request);
+            $dataObj  = $this->reportService->turnOverPerDayReport($request);
 
-            $fileGenerator = new FileGenerator(["Date", "Total Turnover"]);
+            $this->getLoggertInstance()::debug("Leaving Method `" . __METHOD__ . "`");
 
-            $fileGenerator->generateCsvFile($dataObj);
+            $fileGenerator = FileGenerator::getInstance(["Date", "Total Turnover"]);
+
+            $status = 'success';
+            $data = $fileGenerator->generateCsvFile($dataObj);
+        } catch (ValidationException $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::VALIDATION_ERROR,
+                'description' => $e->getMessage()
+            ];
+        } catch (NoDataException $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::NO_DATA_FOUND_ERROR,
+                'description' => $e->getMessage()
+            ];
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::SYSTEM_ERROR,
+                'description' => $e->getMessage()
+            ];
         }
+
+        return [
+            'status' => $status,
+            'data' => $data,
+            'message' => $message,
+        ];
+    }
+
+    /**
+     * Generate turn over per day per brand report
+     * @params json object
+     * @return report data array
+     */
+    public function turnOverPerDayPerBrandAction($request)
+    {
+        $pageStart = $data = $pageEnd = $status = $message = null;
+        $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
+        try {
+
+            $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
+
+            $dataObj  = $this->reportService->turnOverPerDayPerBrandReport($request);
+
+            $this->getLoggertInstance()::debug("Leaving Method `" . __METHOD__ . "`");
+
+            $fileGenerator = FileGenerator::getInstance(["Date", "Brand Name", "Total Turnover"]);
+
+            $status = 'success';
+            $data = $fileGenerator->generateCsvFile($dataObj);
+        } catch (ValidationException $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::VALIDATION_ERROR,
+                'description' => $e->getMessage()
+            ];
+        } catch (NoDataException $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::NO_DATA_FOUND_ERROR,
+                'description' => $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            $status = 'error';
+            $this->getLoggertInstance()::error("Error in Method  `" . __METHOD__ . "` : " . $e->getMessage());
+            $message = [
+                'type' => Error::SYSTEM_ERROR,
+                'description' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'status' => $status,
+            'data' => $data,
+            'message' => $message,
+        ];
+    }
+
+    private function getLoggertInstance()
+    {
+        return Logger::getInstance();
     }
 }
