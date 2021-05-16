@@ -10,10 +10,10 @@
 namespace Reports;
 
 use Application\Connection;
+use Application\Helpers\Logger;
 
 abstract class AbstractReport
 {
-
 
     const TURNOVER_PER_BRAND = 'TURNOVER_PER_BRAND';
     const TURNOVER_PER_DAY = 'TURNOVER_PER_DAY';
@@ -69,5 +69,14 @@ abstract class AbstractReport
     {
         $connection = Connection::getInstance();
         $this->dbConnection = $connection->getConnction();
+    }
+
+    /**
+     * Get logger instance
+     * @return  Logger instance 
+     */
+    protected function getLoggertInstance()
+    {
+        return Logger::getInstance();
     }
 }

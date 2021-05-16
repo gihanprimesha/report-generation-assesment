@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Created by VS code.
+ * User: Gihan Primesha
+ * Date: 07/05/21
+ * Time: 6:50 PM
+ */
+
 namespace Application;
 
 class ActionFactory
@@ -14,10 +21,15 @@ class ActionFactory
         $this->routeParams = $_SERVER['REQUEST_URI'];
     }
 
+    /**
+     * Initial function. Get the data from the post request. check the uri and according to map with uri
+     * invoke the funtion with request data
+     * @params null
+     * @return json object 
+     */
     public function actionCreator()
     {
         header("Content-Type: application/json");
-
 
         if (isset($this->getRouteConfig()['routes'][$this->routeParams])) {
 

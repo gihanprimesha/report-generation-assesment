@@ -33,12 +33,11 @@ class TurnOverReportsController
     {
         $data = $status = $message = null;
         $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
-
-        if (empty($request)) {
-            throw new \Exception("Invalid request data");
-        }
-
         try {
+
+            if (empty($request)) {
+                throw new \Exception("Invalid request data");
+            }
 
             $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 
@@ -91,6 +90,10 @@ class TurnOverReportsController
         $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
         try {
 
+            if (empty($request)) {
+                throw new \Exception("Invalid request data");
+            }
+
             $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 
             $dataObj  = $this->reportService->turnOverPerDayReport($request);
@@ -138,9 +141,13 @@ class TurnOverReportsController
      */
     public function turnOverPerDayPerBrandAction($request)
     {
-        $pageStart = $data = $pageEnd = $status = $message = null;
+        $data = $status = $message = null;
         $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "`");
         try {
+
+            if (empty($request)) {
+                throw new \Exception("Invalid request data");
+            }
 
             $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 

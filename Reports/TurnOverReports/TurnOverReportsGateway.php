@@ -51,10 +51,12 @@ class TurnOverReportsGateway extends AbstractReport
 
         Mapper::VALIDATION_MAP => [
             'startDate' => [
-                Validation::VALID_TYPE_REQUIRED
+                Validation::VALID_TYPE_REQUIRED,
+                Validation::VALID_TYPE_DATE
             ],
             'endDate' => [
-                Validation::VALID_TYPE_REQUIRED
+                Validation::VALID_TYPE_REQUIRED,
+                Validation::VALID_TYPE_DATE
             ],
 
             'reportType' => [
@@ -65,11 +67,18 @@ class TurnOverReportsGateway extends AbstractReport
                 Validation::VALID_TYPE_REQUIRED,
                 Validation::VALID_TYPE_NUMERIC,
             ],
+
+            'rowsPerPage' => [
+                Validation::VALID_TYPE_REQUIRED,
+                Validation::VALID_TYPE_NUMERIC,
+            ],
         ]
     ];
 
     public function getReportData(array $request)
     {
+
+        $this->getLoggertInstance()::debug("Entering Method `" . __METHOD__ . "` with data :" . json_encode($request));
 
         $objectArray = [];
 
@@ -83,7 +92,9 @@ class TurnOverReportsGateway extends AbstractReport
             throw new ValidationException('Validation Failed! ' . $validatedResults[0]);
         }
 
-        $pageStart = ((int) $request['pageNumber'] - 1) * self::ROWS_PER_PAGE;
+        $pageStart = ((int) $request['pageNumber'] - 1) * (int) $request['rowsPerPage'];
+
+        $this->getLoggertInstance()::debug("Processing Method `" . __METHOD__ . "`");
 
         if ($request['reportType'] === parent::TURNOVER_PER_BRAND) {
 
@@ -91,7 +102,7 @@ class TurnOverReportsGateway extends AbstractReport
                 . ".turnover - (" . $this->table_gmv . ".turnover * " . self::VAT_PRESENTAGE . "/100)) 
                 as sum FROM " . $this->table_bands . "
                 LEFT JOIN " . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
-                BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate']  . "' GROUP BY " . $this->table_gmv . ".brand_id LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
+                BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate']  . "' GROUP BY " . $this->table_gmv . ".brand_id LIMIT " . $request['rowsPerPage'] . " OFFSET " . $pageStart;
 
             $data = $this->getReportsDataFromDb($sql);
 
@@ -112,7 +123,7 @@ class TurnOverReportsGateway extends AbstractReport
             $sql = "SELECT " . $this->table_gmv . ".date, SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * "
                 . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
                 . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
-            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
+            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date LIMIT " . $request['rowsPerPage'] . " OFFSET " . $pageStart;
 
             $data = $this->getReportsDataFromDb($sql);
 
@@ -133,11 +144,9 @@ class TurnOverReportsGateway extends AbstractReport
             $sql = "SELECT " . $this->table_gmv . ".date," . $this->table_bands . ".name,  SUM(" . $this->table_gmv . ".turnover - (" . $this->table_gmv . ".turnover * "
                 . self::VAT_PRESENTAGE . "/100))  as sum from brands LEFT JOIN "
                 . $this->table_gmv . " ON brands.id = " . $this->table_gmv . ".brand_id WHERE " . $this->table_gmv . ".date 
-            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date ," . $this->table_gmv . ".brand_id LIMIT " . self::ROWS_PER_PAGE . " OFFSET " . $pageStart;
+            BETWEEN '" . $request['startDate'] . "' AND '" . $request['endDate'] . "' GROUP BY " . $this->table_gmv . ".date ," . $this->table_gmv . ".brand_id LIMIT " . $request['rowsPerPage'] . " OFFSET " . $pageStart;
 
             $data = $this->getReportsDataFromDb($sql);
-
-
 
             if (empty($data)) {
                 throw new NoDataException('No report data found');
@@ -154,6 +163,8 @@ class TurnOverReportsGateway extends AbstractReport
         } else {
             throw new \Exception('Report type not found');
         }
+
+        $this->getLoggertInstance()::debug("Leaving Method `" . __METHOD__ . "`");
 
         return $objectArray;
     }

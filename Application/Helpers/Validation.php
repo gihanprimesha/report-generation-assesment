@@ -8,6 +8,7 @@ class Validation
 {
     const VALID_TYPE_REQUIRED = 'REQUIRED';
     const VALID_TYPE_NUMERIC = 'NUMERIC';
+    const VALID_TYPE_DATE = 'DATE';
 
     public function validateRequest($map, $dataSet)
     {
@@ -38,7 +39,17 @@ class Validation
 
                     if (isset($dataSet[$property]) || !is_null($dataSet[$property]) || $dataSet[$property] !== '') {
                         if (!is_numeric($dataSet[$property])) {
-                            $mesages[] = $property. 'Should be number';
+                            $mesages[] = $property . 'Should be a number';
+                            break;
+                        }
+                    }
+                }
+
+                if ($propValue === self::VALID_TYPE_DATE) {
+
+                    if (isset($dataSet[$property]) || !is_null($dataSet[$property]) || $dataSet[$property] !== '') {
+                        if (\DateTime::createFromFormat('Y-m-d', $dataSet[$property]) === false) {
+                            $mesages[] = $property . 'Should be in valid format';
                             break;
                         }
                     }
