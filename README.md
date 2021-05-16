@@ -72,23 +72,23 @@ To check the assignment use the postman or any tool like postman
 
 ### Turnover per day and per brand
 
-- <domain-name>/reports/turn-over-per-day-per-brand eg :- http://localhost:2217/reports/turn-over-per-day-per-brand
-  - Request :-
-        {
-            "startDate":"2018-05-01",
-            "endDate":"2018-06-07",
-            "pageNumber":"1",
-            "rowsPerPage" : "2"
-        }
-  - Response :-
-        {
-            "status": "success",
-            "data": {
-                "fileName": "report-19:31:34 16-May-2021.csv",
-                "fileLocation": "http://localhost:2217/files/report-19:31:34 16-May-2021.csv"
-            },
-            "message": null
-        }
+    - <domain-name>/reports/turn-over-per-day-per-brand eg :- http://localhost:2217/reports/turn-over-per-day-per-brand
+    - Request :-
+            {
+                "startDate":"2018-05-01",
+                "endDate":"2018-06-07",
+                "pageNumber":"1",
+                "rowsPerPage" : "2"
+            }
+    - Response :-
+            {
+                "status": "success",
+                "data": {
+                    "fileName": "report-19:31:34 16-May-2021.csv",
+                    "fileLocation": "http://localhost:2217/files/report-19:31:34 16-May-2021.csv"
+                },
+                "message": null
+            }
 
 ## Sample error responses
 
