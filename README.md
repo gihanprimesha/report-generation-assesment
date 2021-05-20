@@ -15,7 +15,7 @@ calling api endpoints.
 1. git clone https://github.com/gihanprimesha/gapstars-assesment.git
 2. cd gapstars-assesment
 3. git fetch
-4. git checkout reports-generations
+4. git checkout main
 
 Update configurations in gapstars-assesment/Configs/local.php
 
