@@ -10,12 +10,6 @@ use Reports\TurnOverReports\Models\TurnoverPerDayPerBrand;
 class TurnOverReportsGatewayTest extends TestCase
 {
 
-    // public function testHasAttribute()
-    // {
-    //     $this->assertClassHasAttribute('table_bands', Reports\ReportsGateway::class);
-    //     $this->assertClassHasAttribute('table_gmv', Reports\ReportsGateway::class);
-    // }
-
     public function testTurnOverPerBrand()
     {
         $reportsGateway = new Reports\TurnOverReports\TurnOverReportsGateway();

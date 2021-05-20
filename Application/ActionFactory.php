@@ -30,7 +30,7 @@ class ActionFactory
     public function actionCreator()
     {
         header("Content-Type: application/json");
-
+ 
         if (isset($this->getRouteConfig()['routes'][$this->routeParams])) {
 
             if ($_SERVER['REQUEST_METHOD'] !== $this->getRouteConfig()['routes'][$this->routeParams]['request-method']) {
